@@ -2,7 +2,8 @@
 #include <vector>
 #include <ctime>
 #include <cstdlib>
-#include<algorithm>
+#include <algorithm>
+#include <fstream>
 //using namespace std;
 
 typedef std::vector<int> int_vec;
@@ -28,6 +29,7 @@ int_vec merge(int_vec A, int_vec B){
 	for(int i = 0; i < A.size(); i++){
 		result.push_back(A.at(i));
 	}
+	//std::copy(A.begin(), A.begin() + A.size(), result.end());
 	for(int i = 0; i < B.size(); i++){
 		result.push_back(B.at(i));
 	}
@@ -51,7 +53,7 @@ int_vec mergesort(int_vec& A){
 }
 
 int main(int argc, char *argv[]) {
-	int_vec prueba;/* = {10,9,8,7,6,5,4,3,2,1}*/;
+	int_vec prueba;/* = {10,9,8,7,6,5,4,3,2,1};*/
 	double Time;
 	srand(time(NULL));
 	/*std::cout << "Prior to mergesort:\n";
@@ -59,21 +61,51 @@ int main(int argc, char *argv[]) {
 	std::cout << "Mergesort:\n";
 	mergesort(prueba);
 	print_vec(prueba);*/
-	/*for(int j = 100000; j <= 1000000; j += 100000){ //random
+	std::ofstream file;
+	file.open("m_random.txt");
+	/*std::ofstream file2;
+	file2.open("m_ordered.txt");
+	std::ofstream file3;
+	file3.open("m_orderedB.txt");*/
+	for(int j = 100000; j <= 1000000; j += 100000){ //random
+		int a;
 		prueba.clear();
 		for(int i = 0; i < j; i++){ //10k -> 100k, 10k jumps
 			prueba.push_back(rand());
 		}
+		//print_vec(prueba);
+		//std::cin >> a;
 		clock_t begin = clock();
 		mergesort(prueba);
 		clock_t end = clock();
+		//print_vec(prueba);
+		//std::cin >> a;
 		//std::cout << double(begin) << ' ' << double(end) << '\n';
 		Time = double(end-begin) / CLOCKS_PER_SEC;
-		std::cout << "Time for " << j << " elements: " << Time << std::endl;
-	}*/
-	for(int j = 100000; j <= 1000000; j += 100000){ //ordered
+		//std::cout << "Time for " << j << " elements: " << Time << std::endl;
+		file << j << ' ' << Time << std::endl;
+	}
+	/*for(int j = 100000; j <= 1000000; j += 100000){ //ordered
+		int a;
 		prueba.clear();
 		for(int i = 0; i < j; i++){ //10k -> 100k, 10k jumps
+			prueba.push_back(i);
+		}
+		//print_vec(prueba);
+		//std::cin >> a;
+		clock_t begin = clock();
+		mergesort(prueba);
+		clock_t end = clock();
+		//print_vec(prueba);
+		//std::cin >> a;
+		//std::cout << double(begin) << ' ' << double(end) << '\n';
+		Time = double(end-begin) / CLOCKS_PER_SEC;
+		//std::cout << "Time for " << j << " elements: " << Time << std::endl;
+		file2 << j << ' ' << Time << std::endl;
+	}
+	for(int j = 100000; j <= 1000000; j += 100000){ //ordered backwards
+		prueba.clear();
+		for(int i = j; i > 0; i--){ //10k -> 100k, 10k jumps
 			prueba.push_back(i);
 		}
 		clock_t begin = clock();
@@ -81,8 +113,12 @@ int main(int argc, char *argv[]) {
 		clock_t end = clock();
 		//std::cout << double(begin) << ' ' << double(end) << '\n';
 		Time = double(end-begin) / CLOCKS_PER_SEC;
-		std::cout << "Time for " << j << " elements: " << Time << std::endl;
-	}
+		//std::cout << "Time for " << j << " elements: " << Time << std::endl;
+		file3 << j << ' ' << Time << std::endl;
+	}*/
+	file.close();
+	/*file2.close();
+	file3.close();*/
 	return 0;
 }
 
