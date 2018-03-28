@@ -59,11 +59,21 @@ int partition(int_vec A, int p, int_vec& L, int_vec& R){
 	return A.at(p);
 }
 
-int select_k(int_vec A, int k){
+int naive_select_k(int_vec A, int k){
 	if (A.size() == 1) return A.at(0);
 	int_vec L, R;
 	int p = random_choose_pivot(A);
 	A[p] = partition(A, p, L, R);
+	if (L.size() == k) return A.at(p);
+	else if (L.size() > k) return naive_select_k(L, k);
+	else if (L.size() < k) return naive_select_k(R, k-L.size()-1);
+}
+
+int select_k(int_vec A, int k){
+	if (A.size() <= 100) return naive_select_k(A, k);
+	int p = smartly_choose_pivot(A);
+	int_vec L, R;
+	A.at(p) = partition(A, p, L, R);
 	if (L.size() == k) return A.at(p);
 	else if (L.size() > k) return select_k(L, k);
 	else if (L.size() < k) return select_k(R, k-L.size()-1);
@@ -72,7 +82,7 @@ int select_k(int_vec A, int k){
 int main(int argc, char *argv[]) {
 	int_vec test (6);
 	test = {4,8,2,1,3,5};
-	std::cout << select_k(test, 4);
+	std::cout << naive_select_k(test, 5);
 	return 0;
 }
 
