@@ -1,11 +1,28 @@
 #include <iostream>
 #include <vector>
-#include <tuple>
+#include <utility>
+#include <sstream>
+#include <string>
 
 typedef std::vector<int> int_vec;
-typedef std::tuple<int, int> int_key; //key, value
+typedef std::pair<int, int> int_key; //key, value
 typedef std::vector<int_key> keys_vec;
-typedef std::vector<keys_vec> vecs_vec;
+typedef std::vector<std::vector<int_key> > vecs_vec;
+typedef std::stringstream ss;
+typedef std::string str;
+
+str intToString(const int &z) {
+	ss leString;
+	leString << z;
+	return leString.str();
+}
+
+int stringToInt(str a){
+	int ret;
+	ss convi(a);
+	convi >> ret;
+	return ret;
+}
 
 void print_vec(int_vec A){ //from mergesort.cpp
 	for(int i = 0; i < A.size(); i++){
@@ -14,10 +31,10 @@ void print_vec(int_vec A){ //from mergesort.cpp
 	std::cout << '\n';
 }
 
-int_vec merge(int_vec A, int_vec B){ //modify so that it can sort the pairs
-	int_vec result;
+keys_vec merge(keys_vec A, keys_vec B){ //modify so that it can sort the pairs
+	keys_vec result;
 	while (!A.empty() && !B.empty()){
-		if (A.front() < B.front()){
+		if ( (A.front()).first < (B.front()).first){
 			result.push_back(A.front());
 			A.erase(A.begin());
 		} else {
@@ -30,10 +47,10 @@ int_vec merge(int_vec A, int_vec B){ //modify so that it can sort the pairs
 	return result;
 }
 
-int_vec mergesort(int_vec& A){
+keys_vec mergesort(keys_vec& A){
 	if (A.size() <= 1)
 		return A;
-	int_vec left, right, result;
+	keys_vec left, right, result;
 	std::copy(std::begin(A), std::begin(A) + A.size()/2, std::back_inserter(left));
 	std::copy(std::begin(A) + A.size()/2, std::end(A), std::back_inserter(right));
 	result = merge(mergesort(left), mergesort(right));
@@ -64,9 +81,9 @@ void counting_sort(int_vec& A, int k){
 int_vec bucket_sort(keys_vec A, int k, int num_buckets){
 	vecs_vec buckets (num_buckets);
 	int_vec result;
-	int_key temp;
+	keys_vec temp;
 	for(int i = 0; i < A.size(); i++){
-		buckets.at( get_bucket(std::get<0>(A.at(i)) ) ).push_back(A.at(i));;
+		buckets.at( get_bucket( (A.at(i)).first, k, num_buckets ) ).push_back(A.at(i));;
 	}
 	if (num_buckets < k){
 		for(int i = 0; i < buckets.size(); i++){
@@ -80,9 +97,29 @@ int_vec bucket_sort(keys_vec A, int k, int num_buckets){
 		}
 	}
 	return result;
-	
 }
 
+int n_digit(int num, int n){
+	str snum;
+	snum = intToString(num);
+	return stringToInt(snum[n]);
+}
+
+int_key radix_sort(int_vec A, int d, int k){
+	int_key temp;
+	keys_vec A_j, result;
+	for (int j = 0; j < d-1; j++){
+		A_j.clear();
+		for(int i = 0; i < A.size(); i++){
+			temp.first = A.at(i);
+			temp.second = n_digit(A.at(i), d-1-j);
+			A_j.push_back(temp);
+		}
+		result = bucket_sort(A_j, k, k);
+		A = result;
+	}
+	return result;
+}
 
 int main(int argc, char *argv[]) {
 	
