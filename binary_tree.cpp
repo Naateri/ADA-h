@@ -50,8 +50,15 @@ bool BTree::remove(int x){
 	return 1;
 }
 
+void BTree::inorder(TNode* p){
+	if (!p) return;
+	inorder(p->m_nodes[0]);
+	std::cout << p->m_x << ' ';
+	inorder(p->m_nodes[1]);
+}
+
 TNode** BTree::Rep(TNode** p){
-	for(p = &(p->m_nodes[0]); *p; p = &( (*p)->m_nodes[1]) );
+	for(p = &((*p)->m_nodes[0]); *p; p = &( (*p)->m_nodes[1]) );
 	return p;
 }
 
@@ -60,6 +67,7 @@ int main(int argc, char *argv[]) {
 	A.insert(5);
 	A.insert(3);
 	A.insert(8);
+	A.inorder(A.m_root);
 	return 0;
 }
 
