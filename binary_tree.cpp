@@ -1,4 +1,9 @@
 #include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+
+typedef std::vector<int> int_vec;
 
 struct TNode{
 	int m_x;
@@ -62,12 +67,42 @@ TNode** BTree::Rep(TNode** p){
 	return p;
 }
 
+int rdtsc(){
+	__asm__ __volatile__("rdtsc");
+}
+
+void partition(int_vec A, BTree& res){
+	int_vec L, R;
+	srand( rdtsc() );
+	if (A.size() == 0)
+		return;
+	int p = rand() % int(A.size());
+	for (int i= 0; i < A.size(); i++){
+		if (i == p) continue;
+		else if (A.at(i) <= A.at(p) ) L.push_back(A.at(i));
+		else R.push_back(A.at(i));
+	}
+	res.insert(A.at(p));
+	partition(L, res);
+	partition(R, res);
+}
+
+BTree createTree(int_vec A){
+	BTree res;
+	partition(A, res);
+	return res;
+}
+
 int main(int argc, char *argv[]) {
-	BTree A;
+	BTree A, B;
 	A.insert(5);
 	A.insert(3);
 	A.insert(8);
 	A.inorder(A.m_root);
+	int_vec test (12);
+	test = {4,8,9,2,10,15,1,18,12,3,15,-1};
+	B = createTree(test);
+	B.inorder(B.m_root);
 	return 0;
 }
 
