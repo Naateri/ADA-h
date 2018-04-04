@@ -3,6 +3,9 @@
 #include <utility>
 #include <sstream>
 #include <string>
+#include <algorithm>
+#include <iterator>
+#include <ctime>
 
 typedef std::vector<int> int_vec;
 typedef std::pair<int, int> int_key; //key, value
@@ -10,6 +13,19 @@ typedef std::vector<int_key> keys_vec;
 typedef std::vector<std::vector<int_key> > vecs_vec;
 typedef std::stringstream ss;
 typedef std::string str;
+
+char endl = '\n';
+
+void print_keysVec(keys_vec A){
+	for(int i = 0; i < A.size(); i++){
+		std::cout << A.at(i).second << ' ';
+	}
+	std::cout << endl;
+}
+
+bool operator<(const int_key &a, const int_key &b){
+	return a.first < b.first;
+}
 
 str intToString(const int &z) {
 	ss leString;
@@ -59,70 +75,119 @@ keys_vec mergesort(keys_vec& A){
 }
 
 int get_bucket(int num, int k, int num_buckets){
-	return 0;
+	return num/(k / num_buckets);
 }
+
+/********************************** 
+ COUNTING SORT
+   **************************************** */
 
 void counting_sort(int_vec& A, int k){
 	int_vec counts (k), result;
 	int temp;
-	std::fill(A.begin(), A.end(), 0);
+	std::fill(counts.begin(), counts.end(), 0);
 	for (int i = 0; i < A.size(); i++){
 		counts.at(A.at(i))++;
 	}
 	A.clear();
 	for (int i = 0; i < k; i++){
 		temp = counts.at(i);
-		for(int j = 0; i < temp; j++){
+		for(int j = 0; j < temp; j++){
 			A.push_back(i);
 		}
 	}
 }
 
-int_vec bucket_sort(keys_vec A, int k, int num_buckets){
+/********************************** 
+BUCKET SORT
+**************************************** */
+
+
+keys_vec bucket_sort(keys_vec A, int k, int num_buckets){
 	vecs_vec buckets (num_buckets);
-	int_vec result;
+	keys_vec result;
 	keys_vec temp;
 	for(int i = 0; i < A.size(); i++){
-		buckets.at( get_bucket( (A.at(i)).first, k, num_buckets ) ).push_back(A.at(i));;
+		buckets.at( get_bucket( (A.at(i) ).first, k, num_buckets ) ).push_back(A.at(i));;
 	}
 	if (num_buckets < k){
 		for(int i = 0; i < buckets.size(); i++){
-			mergesort(buckets.at(i));
+			//mergesort(buckets.at(i));
+			std::stable_sort(buckets.at(i).begin(), buckets.at(i).end());
 		}
 	}
 	for(int i = 0; i < buckets.size(); i++){
 		temp = buckets.at(i);
 		for(int j = 0; j < temp.size(); j++){
-			result.push_back(std::get<1>(temp.at(j) ) );
+			result.push_back((temp.at(j) ) );
 		}
 	}
 	return result;
 }
 
-int n_digit(int num, int n){
+/********************************** 
+RADIX SORT
+**************************************** */
+
+
+int n_digit(int num, int n, int d){
 	str snum;
 	snum = intToString(num);
-	return stringToInt(snum[n]);
+	while (snum.size() < d){
+		snum = '0' + snum;
+	}
+	snum = snum[n];
+	snum += '\0';
+	return stringToInt(snum);
 }
 
-int_key radix_sort(int_vec A, int d, int k){
+keys_vec int_to_keys(int_vec A){ //transforms a vector of only ints to a vector of pairs (key, val)
 	int_key temp;
-	keys_vec A_j, result;
-	for (int j = 0; j < d-1; j++){
+	keys_vec ret;
+	temp.first = 0;
+	for(int i = 0; i < A.size(); i++){
+		temp.second = A.at(i);
+		ret.push_back(temp);
+	}
+	return ret;
+}
+
+keys_vec radix_sort(int_vec A, int d, int k){
+	int_key temp;
+	keys_vec A_j, result, A_t = int_to_keys(A);
+	for (int j = 0; j < d; j++){
 		A_j.clear();
-		for(int i = 0; i < A.size(); i++){
-			temp.first = A.at(i);
-			temp.second = n_digit(A.at(i), d-1-j);
+		for(int i = 0; i < A_t.size(); i++){
+			temp.second = A_t.at(i).second;
+			temp.first = n_digit(A_t.at(i).second, d-j-1, d);
 			A_j.push_back(temp);
 		}
 		result = bucket_sort(A_j, k, k);
-		A = result;
+		A_t = result;
 	}
 	return result;
 }
 
 int main(int argc, char *argv[]) {
-	
+	srand(time(NULL));
+	int_vec A0 (8);
+	A0 = {0,0,3,1,1,3,1,0};
+	counting_sort(A0, 4);
+	print_vec(A0);
+	int_vec A (8);
+	A = {31,5,210,14,95,477,555,125};
+	keys_vec test, test2 (10);
+	int_key temp;
+	int tmp;
+	for(int i = 0; i < 10; i++){
+		tmp = rand() % 50;
+		temp.first = temp.second = tmp;
+		test2.at(i) = temp;
+	}
+	test = bucket_sort(test2, 50, 10);
+	print_keysVec(test);
+	test = radix_sort(A, 3, 10);
+	print_keysVec(test);
 	return 0;
 }
 
