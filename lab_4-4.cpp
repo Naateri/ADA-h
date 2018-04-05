@@ -2,6 +2,9 @@
 File: sorting.cpp
 Authors: Eric and Duncan
 Date:
+
+c++ command to compile: -Wall -pedantic-errors -O0 -finput-charset=iso-8859-1 -fexec-charset=cp437 -std=c++11
+
 */
 
 #include <iostream>
@@ -219,7 +222,7 @@ int main(int argc, char *argv[]) {
 			clock_t end = clock();
 			t1 = double(end-begin)/CLOCKS_PER_SEC;
 			if (!issorted(aa.begin(), aa.end())) {
-			throw "countingsort not working";
+				throw "countingsort not working";
 			}
 			// crear una copia de a llamada aa
 			AA = A;
