@@ -1,11 +1,8 @@
 #include <iostream>
 #include <vector>
-#include <utility>
-#include <sstream>
-#include <string>
-#include <algorithm>
-#include <iterator>
 #include <ctime>
+#include <cstdlib>
+#include <fstream>
 
 typedef std::vector<int> int_vec;
 
@@ -45,6 +42,7 @@ void quicksort_H(int_vec& A, int p, int r){
 	int q;
 	if (p < r){
 		q = HOARE_partition(A, p, r);
+		if (p >= 99000) std::cout << p << ' ' << q << ' ' << r << '\n';
 		quicksort_H(A, p, q);
 		quicksort_H(A,q + 1, r);
 	}
@@ -87,6 +85,76 @@ int main(int argc, char *argv[]) {
 	quicksort_H(A1, 0, A1.size()-1);
 	print_vec(A);
 	print_vec(A1);*/
+	int_vec A, copy;
+	double time, time2;
+	std::ofstream file;
+	file.open("times.txt");
+	/*file << "Random elements: " << std::endl;
+	for (int i = 100000; i <= 1000000; i += 100000){
+		for(int j = 0; j < i; j++){
+			A.push_back(int(rand()) );
+		}
+		copy = A;
+		clock_t begin = clock();
+		quicksort_H(copy, 0, copy.size() - 1);
+		clock_t end = clock();
+		time = double(end-begin) / CLOCKS_PER_SEC;
+		
+		copy = A;
+		clock_t begin1 = clock();
+		quicksort_L(copy, 0, copy.size() - 1);
+		clock_t end1 = clock();
+		time2 = double(end1-begin1) / CLOCKS_PER_SEC;
+		
+		file << i << " HOARE " << time << " N.LOMUTO " << time2 << std::endl;
+		A.clear();
+	}*/
+	
+	file << "Ordered elements: " << std::endl;
+	for (int i = 100000; i <= 1000000; i += 100000){
+		for(int j = 0; j < i; j++){
+			A.push_back(j+1);
+		}
+		copy = A;
+		clock_t begin = clock();
+		std::cout << "beginning quicksort\n";
+		quicksort_H(copy, 0, copy.size() - 1);
+		std::cout << "ending quicksort\n";
+		clock_t end = clock();
+		time = double(end-begin) / CLOCKS_PER_SEC;
+		
+		copy = A;
+		clock_t begin1 = clock();
+		quicksort_L(copy, 0, copy.size() - 1);
+		clock_t end1 = clock();
+		time2 = double(end1-begin1) / CLOCKS_PER_SEC;
+		
+		file << i << " HOARE " << time << " N.LOMUTO " << time2 << std::endl;
+		
+		A.clear();
+	}
+	
+	file << "Inversely Ordered elements: " << std::endl;
+	for (int i = 100000; i <= 1000000; i += 100000){
+		for(int j = i; j > 0; j--){
+			A.push_back(j);
+		}
+		copy = A;
+		clock_t begin = clock();
+		quicksort_H(copy, 0, copy.size() - 1);
+		clock_t end = clock();
+		time = double(end-begin) / CLOCKS_PER_SEC;
+		
+		copy = A;
+		clock_t begin1 = clock();
+		quicksort_L(copy, 0, copy.size() - 1);
+		clock_t end1 = clock();
+		time2 = double(end1-begin1) / CLOCKS_PER_SEC;
+		
+		file << i << " HOARE " << time << " N.LOMUTO " << time2 << std::endl;
+		A.clear();
+	}
+	
 	return 0;
 }
 
