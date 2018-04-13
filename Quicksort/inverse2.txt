@@ -1,0 +1,2 @@
+Inversely Ordered elements: 
+100000 HOARE 61.5176 N.LOMUTO 190.083

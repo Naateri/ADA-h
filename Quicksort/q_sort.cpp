@@ -42,7 +42,6 @@ void quicksort_H(int_vec& A, int p, int r){
 	int q;
 	if (p < r){
 		q = HOARE_partition(A, p, r);
-		if (p >= 99000) std::cout << p << ' ' << q << ' ' << r << '\n';
 		quicksort_H(A, p, q);
 		quicksort_H(A,q + 1, r);
 	}
@@ -87,9 +86,11 @@ int main(int argc, char *argv[]) {
 	print_vec(A1);*/
 	int_vec A, copy;
 	double time, time2;
-	std::ofstream file;
+	std::ofstream file, file2, file3;
 	file.open("times.txt");
-	/*file << "Random elements: " << std::endl;
+	file2.open("ordered.txt");
+	file3.open("inverse.txt");
+	file << "Random elements: " << std::endl;
 	for (int i = 100000; i <= 1000000; i += 100000){
 		for(int j = 0; j < i; j++){
 			A.push_back(int(rand()) );
@@ -108,9 +109,9 @@ int main(int argc, char *argv[]) {
 		
 		file << i << " HOARE " << time << " N.LOMUTO " << time2 << std::endl;
 		A.clear();
-	}*/
+	}
 	
-	file << "Ordered elements: " << std::endl;
+	/*file2 << "Ordered elements: " << std::endl; ////ATTEMPT WITH 100K TO 1M ELEMENTS
 	for (int i = 100000; i <= 1000000; i += 100000){
 		for(int j = 0; j < i; j++){
 			A.push_back(j+1);
@@ -129,13 +130,13 @@ int main(int argc, char *argv[]) {
 		clock_t end1 = clock();
 		time2 = double(end1-begin1) / CLOCKS_PER_SEC;
 		
-		file << i << " HOARE " << time << " N.LOMUTO " << time2 << std::endl;
+		file2 << i << " HOARE " << time << " N.LOMUTO " << time2 << std::endl;
 		
 		A.clear();
 	}
 	
-	file << "Inversely Ordered elements: " << std::endl;
-	for (int i = 100000; i <= 1000000; i += 100000){
+	file3 << "Inversely Ordered elements: " << std::endl;
+	for (int i = 200000; i <= 1000000; i += 100000){
 		for(int j = i; j > 0; j--){
 			A.push_back(j);
 		}
@@ -151,9 +152,57 @@ int main(int argc, char *argv[]) {
 		clock_t end1 = clock();
 		time2 = double(end1-begin1) / CLOCKS_PER_SEC;
 		
-		file << i << " HOARE " << time << " N.LOMUTO " << time2 << std::endl;
+		file3 << i << " HOARE " << time << " N.LOMUTO " << time2 << std::endl;
+		A.clear();
+	}*/
+
+	file2 << "Ordered elements: " << std::endl; ////10K TO 100K
+	for (int i = 10000; i <= 100000; i += 10000){
+		for(int j = 0; j < i; j++){
+			A.push_back(j+1);
+		}
+		copy = A;
+		clock_t begin = clock();
+		quicksort_H(copy, 0, copy.size() - 1);
+		clock_t end = clock();
+		time = double(end-begin) / CLOCKS_PER_SEC;
+		
+		copy = A;
+		clock_t begin1 = clock();
+		quicksort_L(copy, 0, copy.size() - 1);
+		clock_t end1 = clock();
+		time2 = double(end1-begin1) / CLOCKS_PER_SEC;
+		
+		file2 << i << " HOARE " << time << " N.LOMUTO " << time2 << std::endl;
+		
 		A.clear();
 	}
+	
+	file3 << "Inversely Ordered elements: " << std::endl;
+	for (int i = 10000; i <= 100000; i += 10000){
+		for(int j = i; j > 0; j--){
+			A.push_back(j);
+		}
+		copy = A;
+		clock_t begin = clock();
+		quicksort_H(copy, 0, copy.size() - 1);
+		clock_t end = clock();
+		time = double(end-begin) / CLOCKS_PER_SEC;
+		
+		copy = A;
+		clock_t begin1 = clock();
+		quicksort_L(copy, 0, copy.size() - 1);
+		clock_t end1 = clock();
+		time2 = double(end1-begin1) / CLOCKS_PER_SEC;
+		
+		file3 << i << " HOARE " << time << " N.LOMUTO " << time2 << std::endl;
+		A.clear();
+	}
+
+
+	file.close();
+	file2.close();
+	file3.close();
 	
 	return 0;
 }
