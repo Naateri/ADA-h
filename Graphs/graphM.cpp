@@ -12,6 +12,41 @@ typedef std::vector<int> int_vec;
 typedef std::vector<int_vec> int_vec_of_vecs;
 typedef Node* node_ptr;
 
+typedef std::string str;
+typedef unsigned int uint;
+typedef std::vector<uint> uint_vec;
+
+struct Path{
+	str path;
+	uint length = 0;
+	bool done = 0;
+};
+
+bool allNodesChecked(Path* p, uint size){
+	for(uint i = 0; i < size; i++){
+		if ( ! (p+i)->done ) return 0;
+	}
+	return 1;
+}
+
+bool findSameLetter(str a, str b){
+	int shortest;
+	if (a.size() > b.size()) shortest = b.size();
+	else shortest = a.size();
+	for(int i = 0; i < shortest; i++){
+		if ( a[i] == b[i] ) return 1;
+	}
+	return 0;
+}
+
+uint findInVector(node_vec vec, Node* elem){
+	uint i = 0;
+	while(vec.at(i) != elem){
+		i++;
+	}
+	return i;
+}
+
 void print_matrix(int a, int b, int** c){
 	for (int i = 0; i < a; i++){
 		for (int j = 0; j < b; j++){
@@ -45,6 +80,11 @@ public:
 	int dfs(int pos, int cur_time);
 	int dfs_tl(Node* u, int cur_time); //dfs topological list
 	void bfs(int pos);
+	uint Dijkstra(int start, int goal); //DISCLAIMER: Este para nada es el mejor Dijkstra y tiene (al menos) 69*10^(69) mejoras posibles de hecho
+private:
+	uint findByValue(char val);
+	void Dijks(int strt_pnt, int& node, Path* p);
+	void setMinNode(Path* p, uint size, int& minNode);
 };
 
 Graph::Graph(int n){
@@ -117,6 +157,103 @@ void Graph::bfs(int pos){  //seems to be working
 	}
 }
 
+void Graph::setMinNode(Path* p, uint size, int& minNode){
+	uint min = -1;
+	for(uint i = 0; i < size; i++){
+		if (!(p+i)->length || (p+i)->done ) continue;
+		if (min > (p+i)->length){
+			min = (p+i)->length;
+			minNode = i;
+		}
+	}
+	//p[findInVector(nodes_names, nodes_names.at(minNode))].done = 1;
+	p[minNode].done = 1;
+}
+
+uint Graph::findByValue(char val){
+	uint i = 0;
+	while(nodes_names.at(i)->name != val){
+		i++;
+	}
+	return i;
+}
+
+void Graph::Dijks(int strt_pnt, int& node, Path* p){
+	Path* ptr; //para saber si ya paso por ese nodo o no
+	int minNode;
+	str newpath;
+	uint prevLen;
+	int i = 0;
+	if (allNodesChecked(p, nodes_names.size())) return;
+	//for(node_list::iterator it = node->neighbours.begin(); it != node->neighbours.end(); it++){
+	for (int i = 0; i < this->size; i++){
+		//if (p[findInVector(nodes, (*it)->m_nodes[node == (*it)->m_nodes[0]])].done) continue;
+		if (nodes[strt_pnt][i] == 0){
+			continue;
+		}
+		if (p[i].done) continue;
+		/*ptr = &p[findInVector(nodes_names, nodes_names.at(i))];
+		newpath = p[findInVector(nodes_names, nodes_names.at(i))].path + nodes_names.at(i)->name; //posible nuevo camino
+		prevLen = p[findInVector(nodes_names, nodes_names.at(i))].length; */
+		ptr = &p[i];
+		newpath = p[i].path + nodes_names.at(i)->name;
+		prevLen = p[i].length;
+		if (ptr->done) continue;
+		//if ( !ptr->length || ptr->length > prevLen + node->weights.at(i)){ //si la nueva distancia
+		if ( !ptr->length || ptr->length > prevLen + nodes[strt_pnt][i]){ //si la nueva distancia
+			ptr->length = prevLen + nodes[strt_pnt][i]; //es menor
+			ptr->path = newpath;
+		}
+		/*} else { //arista bidireccional 
+		if (node == (*it)->m_nodes[0]){ //el nodo esta en la primera pos de la arista
+		ptr = &p[findInVector(m_nodes, (*it)->m_nodes[1])]; //nos lleva a la segunda
+		newpath = p[findInVector(m_nodes, node)].path + (*it)->m_nodes[1]->m_data;
+		//cout << "Connected to: " << (*it)->m_nodes[1]->m_data << endl;
+		} else {
+		ptr = &p[findInVector(m_nodes, (*it)->m_nodes[0])];
+		newpath = p[findInVector(m_nodes, node)].path + (*it)->m_nodes[0]->m_data;
+		//cout << "Connected to: " << (*it)->m_nodes[0]->m_data << endl;
+		}
+		prevLen = p[findInVector(m_nodes, node)].length; 
+		if (ptr->done) continue;
+		if ( !ptr->length || ptr->length > prevLen + (*it)->m_data){ //si la nueva distancia
+		ptr->length = prevLen + (*it)->m_data; //es menor a la ya guardada
+		ptr->path = newpath;
+		}
+		//}*/
+		//i++;
+	}
+	//setMinNode(p, nodes.size(), minNode);
+	setMinNode(p, nodes_names.size(), minNode);
+	if (node == minNode){
+		minNode = strt_pnt;
+		Dijks(strt_pnt, minNode, p);
+	}
+	node = minNode;
+	return;
+}
+
+uint Graph::Dijkstra(int start, int goal){
+	Path* paths = new Path[nodes_names.size()];
+	int copy = findInVector(nodes_names, nodes_names.at(start));
+	/*paths[findInVector(nodes_names, nodes_names.at(start))].done = 1; //ya "paso" por el nodo de inicio
+	paths[findInVector(nodes_names, nodes_names.at(start))].path = nodes_names.at(start)->name; //y el camino es el mismo nodo*/
+	paths[start].done = 1; //ya "paso" por el nodo de inicio
+	paths[start].path = nodes_names.at(start)->name; //y el camino es el mismo nodo
+	for(uint i = 0; i < size; i++){
+		std::cout << "start: " << start << '\n';
+		std::cout << "copy: " << copy << '\n';
+		std::cout << "i: " << i << '\n';
+		Dijks(copy, start, paths);
+		if (start == goal) break;
+	}
+	//uint res = paths[findInVector(nodes_names, nodes_names.at(goal))].length;
+	uint res = paths[goal].length;
+	//std::cout << "Camino: " << paths[findInVector(nodes_names, nodes_names.at(goal))].path << std::endl;
+	std::cout << "Camino: " << paths[(goal)].path << std::endl;
+	delete[] paths;
+	return res;
+}
 
 int main(int argc, char *argv[]) {
 	Graph Test(8); //graph found at slides
@@ -138,8 +275,11 @@ int main(int argc, char *argv[]) {
 	Test.add_edge(3, 4, 1, 0);
 	Test.add_edge(3, 5, 1, 0);
 	Test.add_edge(5, 6, 1, 0);
+	//std::cout << Test.dfs(Test.nodes[0], 0) << '\n';
 	std::cout << Test.dfs(0, 0) << '\n';
+	//Test.bfs(Test.nodes[0]);
 	Test.bfs(0);
+	std::cout << Test.Dijkstra(6, 3) << '\n';
 	return 0;
 }
 
